@@ -1,11 +1,5 @@
-<%@ page import="java.sql.*" %>
-<%
-    String adminUser = (String) session.getAttribute("admin");
-    if (adminUser == null) {
-        response.sendRedirect("adminLogin.jsp");
-        return;
-    }
-%>
+<%@ page contentType="text/html; charset=UTF-8" %>
+
 <!DOCTYPE html>
 <html>
 <head>

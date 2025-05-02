@@ -33,6 +33,9 @@
             <span class="text-white ms-auto">Guest</span>
         <% } %>
     </div>
+   	<div>
+   		<a href="home.jsp" class="btn btn-light me-2">Home</a>
+   	</div>
 </nav>
 
 <div class="container mt-5">

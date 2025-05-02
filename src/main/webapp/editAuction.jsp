@@ -1,23 +1,28 @@
 <%@ page import="java.sql.*" %>
 <%
-    String adminUser = (String) session.getAttribute("admin");
-    if (adminUser == null) {
-        response.sendRedirect("adminLogin.jsp");
+
+    String id = request.getParameter("id");
+    if (id == null) {
+        response.sendRedirect("auctionList.jsp");
         return;
     }
 
-    int auctionId = Integer.parseInt(request.getParameter("id"));
-    Class.forName("com.mysql.cj.jdbc.Driver");
+    Class.forName("com.mysql.jdbc.Driver");
     Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/OnlineBiddingSystem", "root", "sql@2025");
+
     PreparedStatement pst = conn.prepareStatement("SELECT * FROM auctions WHERE id = ?");
-    pst.setInt(1, auctionId);
+    pst.setString(1, id);
     ResultSet rs = pst.executeQuery();
-    rs.next();
+
+    if (!rs.next()) {
+        response.sendRedirect("auctionList.jsp");
+        return;
+    }
 %>
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Edit Auction - BidMaster</title>
+    <title>Edit Auction</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
@@ -27,7 +32,7 @@
         <input type="hidden" name="id" value="<%= rs.getInt("id") %>">
         <div class="mb-3">
             <label>Title</label>
-            <input type="text" name="title" value="<%= rs.getString("title") %>" class="form-control" required>
+            <input type="text" name="title" class="form-control" value="<%= rs.getString("title") %>" required>
         </div>
         <div class="mb-3">
             <label>Description</label>
@@ -35,20 +40,20 @@
         </div>
         <div class="mb-3">
             <label>Start Price</label>
-            <input type="number" name="start_price" step="0.01" value="<%= rs.getBigDecimal("start_price") %>" class="form-control" required>
+            <input type="number" name="start_price" step="0.01" class="form-control" value="<%= rs.getBigDecimal("start_price") %>" required>
         </div>
         <div class="mb-3">
             <label>End Time</label>
-            <input type="datetime-local" name="end_time" value="<%= rs.getTimestamp("end_time").toLocalDateTime().toString() %>" class="form-control" required>
+            <input type="datetime-local" name="end_time" class="form-control" value="<%= rs.getTimestamp("end_time").toLocalDateTime().toString().replace("T", "T") %>" required>
         </div>
-        <button class="btn btn-warning" type="submit">Update Auction</button>
+        <button class="btn btn-primary" type="submit">Update Auction</button>
         <a href="auctionList.jsp" class="btn btn-secondary">Cancel</a>
     </form>
+</div>
+</body>
+</html>
 <%
     rs.close();
     pst.close();
     conn.close();
 %>
-</div>
-</body>
-</html>

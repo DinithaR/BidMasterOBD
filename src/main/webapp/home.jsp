@@ -1,8 +1,14 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
-<%@ page import="java.util.*" %>
+<%@ page import="java.sql.*, java.util.*" %>
 <%
     String userName = (String) session.getAttribute("name");
+    String role = (String) session.getAttribute("role");
     boolean isLoggedIn = (userName != null);
+
+    Class.forName("com.mysql.jdbc.Driver");
+    Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/OnlineBiddingSystem", "root", "sql@2025");
+    Statement stmt = conn.createStatement();
+    ResultSet rs = stmt.executeQuery("SELECT id, title, start_price FROM auctions WHERE status = 'active' ORDER BY end_time ASC");
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -46,6 +52,12 @@
             <% if (isLoggedIn) { %>
                 <span class="text-white me-3">Welcome, <%= userName %></span>
                 <a class="btn btn-outline-light me-2" href="myBids.jsp">My Bids</a>
+
+                <%-- Show Listings Dashboard for admin or seller --%>
+                <% if ("admin".equals(role) || "seller".equals(role)) { %>
+                    <a class="btn btn-warning me-2" href="auctionList.jsp">Listings Dashboard</a>
+                <% } %>
+
                 <a class="btn btn-light me-2" href="profile.jsp">Profile</a>
                 <a class="btn btn-danger" href="Logout">Logout</a>
             <% } else { %>
@@ -70,35 +82,28 @@
 
     <div class="row row-cols-1 row-cols-md-5 g-4">
         <%
-            String[] titles = { "iPhone 14", "Galaxy S23", "MacBook Air", "Apple Watch", "Sony Headphones",
-                                "Gaming Laptop", "Canon Camera", "Bluetooth Speaker", "Smart TV", "PlayStation 5" };
-            String[] prices = { "$500", "$450", "$900", "$250", "$120", "$1100", "$700", "$80", "$650", "$499" };
-            String[] images = {
-                "https://via.placeholder.com/300x150?text=iPhone+14",
-                "https://via.placeholder.com/300x150?text=Galaxy+S23",
-                "https://via.placeholder.com/300x150?text=MacBook+Air",
-                "https://via.placeholder.com/300x150?text=Apple+Watch",
-                "https://via.placeholder.com/300x150?text=Sony+Headphones",
-                "https://via.placeholder.com/300x150?text=Gaming+Laptop",
-                "https://via.placeholder.com/300x150?text=Canon+Camera",
-                "https://via.placeholder.com/300x150?text=Bluetooth+Speaker",
-                "https://via.placeholder.com/300x150?text=Smart+TV",
-                "https://via.placeholder.com/300x150?text=PlayStation+5"
-            };
-
-            for (int i = 0; i < 10; i++) {
+            while (rs.next()) {
+                int auctionId = rs.getInt("id");
+                String title = rs.getString("title");
+                String price = rs.getBigDecimal("start_price").toString();
+                String image = "https://via.placeholder.com/300x150?text=" + title.replaceAll(" ", "+");
         %>
         <div class="col">
             <div class="card h-100">
-                <img src="<%= images[i] %>" class="card-img-top" alt="<%= titles[i] %>">
+                <img src="<%= image %>" class="card-img-top" alt="<%= title %>">
                 <div class="card-body d-flex flex-column">
-                    <h5 class="product-title"><%= titles[i] %></h5>
-                    <p class="product-price">Starting Price: <%= prices[i] %></p>
-                    <a href="auction.jsp?id=<%= i + 1 %>" class="btn btn-primary mt-auto">View Auction</a>
+                    <h5 class="product-title"><%= title %></h5>
+                    <p class="product-price">Starting Price: $<%= price %></p>
+                    <a href="auction.jsp?id=<%= auctionId %>" class="btn btn-primary mt-auto">View Auction</a>
                 </div>
             </div>
         </div>
         <% } %>
+        <%
+            rs.close();
+            stmt.close();
+            conn.close();
+        %>
     </div>
 </div>
 

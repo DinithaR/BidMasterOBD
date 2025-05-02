@@ -1,10 +1,11 @@
 package com.BidMaster.listings;
 
-import java.io.IOException;
-import java.sql.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.*;
 
 @WebServlet("/AddAuctionServlet")
 public class AddAuctionServlet extends HttpServlet {
@@ -18,17 +19,19 @@ public class AddAuctionServlet extends HttpServlet {
         try {
             Class.forName("com.mysql.jdbc.Driver");
             Connection conn = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/OnlineBiddingSystem", "root", "sql@2025");
+                    "jdbc:mysql://localhost:3306/OnlineBiddingSystem", "root", "sql@2025");
 
             PreparedStatement pst = conn.prepareStatement(
                 "INSERT INTO auctions (seller_id, title, description, start_price, end_time) VALUES (?, ?, ?, ?, ?)");
-            pst.setInt(1, 1); // Use 1 or set seller_id dynamically if needed
+
+            pst.setInt(1, 1); // Default seller ID (admin), you can use session in future
             pst.setString(2, title);
             pst.setString(3, description);
-            pst.setBigDecimal(4, new java.math.BigDecimal(startPrice));
-            pst.setString(5, endTime);
+            pst.setBigDecimal(4, new BigDecimal(startPrice));
+            pst.setTimestamp(5, Timestamp.valueOf(endTime.replace("T", " ") + ":00"));
 
             pst.executeUpdate();
+
             pst.close();
             conn.close();
 
