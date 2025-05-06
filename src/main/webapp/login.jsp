@@ -36,7 +36,7 @@
         }
         .btn-dark-modern:hover {
             background-color: #23272b;
-            color: #fff
+            color: #fff;
         }
         .btn-primary-modern {
             background-color: #0d6efd;
@@ -56,7 +56,7 @@
 </head>
 <body>
 
-<!-- Navbar with Admin Login in top-right -->
+<!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container d-flex justify-content-between align-items-center">
         <a class="navbar-brand fw-bold" href="home.jsp">BidMaster</a>
@@ -67,6 +67,14 @@
 <!-- Login Card -->
 <div class="login-card">
     <h3 class="text-center mb-4">Welcome Back</h3>
+
+    <% String status = (String) request.getAttribute("status"); %>
+    <% if ("fail".equals(status)) { %>
+        <div class="alert alert-danger">Invalid email or password.</div>
+    <% } else if ("unauthorized".equals(status)) { %>
+        <div class="alert alert-warning">Unauthorized role access.</div>
+    <% } %>
+
     <form action="login" method="post">
         <input type="text" class="form-control my-3" name="username" placeholder="Email" required>
         <input type="password" class="form-control my-3" name="password" placeholder="Password" required>

@@ -6,9 +6,16 @@
     boolean isLoggedIn = (userName != null);
 
     Class.forName("com.mysql.jdbc.Driver");
-    Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/OnlineBiddingSystem", "root", "sql@2025");
+    Connection conn = DriverManager.getConnection(
+        "jdbc:mysql://localhost:3306/OnlineBiddingSystem", "root", "sql@2025");
     Statement stmt = conn.createStatement();
-    ResultSet rs = stmt.executeQuery("SELECT id, title, start_price FROM auctions WHERE status = 'active' ORDER BY end_time ASC");
+    String query = "SELECT a.id, a.title, a.start_price, a.image, MAX(b.bid_amount) AS highest_bid " +
+                   "FROM auctions a " +
+                   "LEFT JOIN bid b ON a.id = b.auction_id " +
+                   "WHERE a.status = 'active' " +
+                   "GROUP BY a.id " +
+                   "ORDER BY a.end_time ASC";
+    ResultSet rs = stmt.executeQuery(query);
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -52,12 +59,9 @@
             <% if (isLoggedIn) { %>
                 <span class="text-white me-3">Welcome, <%= userName %></span>
                 <a class="btn btn-outline-light me-2" href="myBids.jsp">My Bids</a>
-
-                <%-- Show Listings Dashboard for admin or seller --%>
                 <% if ("admin".equals(role) || "seller".equals(role)) { %>
                     <a class="btn btn-warning me-2" href="auctionList.jsp">Listings Dashboard</a>
                 <% } %>
-
                 <a class="btn btn-light me-2" href="profile.jsp">Profile</a>
                 <a class="btn btn-danger" href="Logout">Logout</a>
             <% } else { %>
@@ -79,30 +83,37 @@
 <!-- Auction Listings -->
 <div class="container mt-4">
     <h2 class="mb-4 text-center">🔥 Live Auctions</h2>
-
     <div class="row row-cols-1 row-cols-md-5 g-4">
         <%
             while (rs.next()) {
                 int auctionId = rs.getInt("id");
                 String title = rs.getString("title");
                 String price = rs.getBigDecimal("start_price").toString();
-                String image = "https://via.placeholder.com/300x150?text=" + title.replaceAll(" ", "+");
+                String image = rs.getString("image");
+                String imagePath = (image != null && !image.isEmpty()) 
+                                   ? "uploads/" + image 
+                                   : "https://via.placeholder.com/300x150?text=" + title.replaceAll(" ", "+");
+                String highestBid = rs.getString("highest_bid");
         %>
         <div class="col">
             <div class="card h-100">
-                <img src="<%= image %>" class="card-img-top" alt="<%= title %>">
+                <img src="<%= imagePath %>" class="card-img-top" alt="<%= title %>">
                 <div class="card-body d-flex flex-column">
                     <h5 class="product-title"><%= title %></h5>
-                    <p class="product-price">Starting Price: $<%= price %></p>
+                    <p class="product-price">Starting Price: Rs.<%= price %></p>
+                    <% if (highestBid != null) { %>
+                        <p class="text-success">Highest Bid: Rs.<%= highestBid %></p>
+                    <% } else { %>
+                        <p class="text-muted">No bids yet</p>
+                    <% } %>
                     <a href="auction.jsp?id=<%= auctionId %>" class="btn btn-primary mt-auto">View Auction</a>
                 </div>
             </div>
         </div>
-        <% } %>
-        <%
-            rs.close();
-            stmt.close();
-            conn.close();
+        <% } 
+           rs.close();
+           stmt.close();
+           conn.close();
         %>
     </div>
 </div>
