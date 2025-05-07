@@ -1,4 +1,4 @@
 <%
     session.removeAttribute("admin");
-    response.sendRedirect("adminLogin.jsp");
+    response.sendRedirect("home.jsp");
 %>

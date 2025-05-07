@@ -49,7 +49,7 @@ public class LoginServlet extends HttpServlet {
 
                 String role = rs.getString("role");
                 if ("admin".equals(role)) {
-                    dispatcher = request.getRequestDispatcher("adminDashboard.jsp");
+                    dispatcher = request.getRequestDispatcher("adminUsers.jsp");
                 } else if ("bidder".equals(role)) {
                     dispatcher = request.getRequestDispatcher("home.jsp");
                 } else if ("seller".equals(role)) {

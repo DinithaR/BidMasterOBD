@@ -43,6 +43,7 @@
         <span class="navbar-brand fw-bold">BidMaster Admin Panel</span>
         <div class="d-flex">
             <span class="text-white me-3">Logged in as: <strong><%= adminUser %></strong></span>
+            <a href="categoryList.jsp" class="btn btn-light me-2">Manage Categories</a>
             <a class="btn btn-light me-2" href="home.jsp">Home</a>
             <a href="adminLogout.jsp" class="btn btn-outline-light">Logout</a>
         </div>
